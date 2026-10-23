@@ -1,0 +1,360 @@
+#!/usr/bin/env python3
+"""
+Generates MoMint's two product pages (sugar / sugar-free) from one shared
+template so they can't drift out of parity. Edit CONTENT below, not the
+HTML files directly, then rerun: python3 generate.py
+
+Outputs:
+  index.html            (= sugar variant, served at the domain root)
+  sugar/index.html
+  sugar-free/index.html
+"""
+import os
+
+TEMPLATE = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MoMint — Daily Creatine Mints</title>
+<meta name="description" content="MoMint — {dose}g Creapure® creatine in every mint. {mint_count_word_cap} mints a day, no shaker, no powder. Reserve your spot for the first run.">
+<meta name="robots" content="noindex, nofollow"><!-- TODO: remove once ready to run ads -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{asset_prefix}assets/style.css">
+
+<!-- TRACKING STUBS — replace placeholder IDs before launch. See README.md -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
+<script>
+  !function(f,b,e,v,n,t,s){{if(f.fbq)return;n=f.fbq=function(){{n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)}};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}}(window,
+  document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', 'XXXXXXXXXXXXXXX');
+  fbq('track', 'PageView');
+</script>
+<script>
+  (function(w,d,t,r,u){{var f,n,i;w[u]=w[u]||[],f=function(){{var o={{ti:"XXXXXXXXX", enableAutoSpaTracking: true}};o.q=w[u],w[u]=new UET(o),w[u].push("pageLoad")}},n=d.createElement(t),n.src=r,n.async=1,n.onload=n.onreadystatechange=function(){{var s=this.readyState;s&&s!=="loaded"&&s!=="complete"||(f(),n.onload=n.onreadystatechange=null)}},i=d.getElementsByTagName(t)[0],i.parentNode.insertBefore(n,i)}})(window,document,"script","//bat.bing.com/bat.js","uetq");
+</script>
+
+<script>window.PAGE_VARIANT = "momint_{variant_id}";</script>
+</head>
+<body>
+
+<div class="dev-banner">DRAFT — MoMint · {variant_label} · working copy, not final</div>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="{asset_prefix}"><span class="logo-mark">M</span>MoMint</a>
+    <nav class="links">
+      <a href="#benefits">Benefits</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#reserve">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="variant-switch">
+      <a href="{asset_prefix}sugar/" class="{sugar_current}">Classic</a>
+      <a href="{asset_prefix}sugar-free/" class="{sugar_free_current}">Sugar-Free</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+<section class="hero">
+  <div class="hero-blob blob-a"></div>
+  <div class="hero-blob blob-b"></div>
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow"><span class="dot"></span>Finally — creatine that tastes good</div>
+      <h1>Creatine that<br>tastes like <span class="accent">a mint.</span></h1>
+      <p class="sub">{dose}g of Creapure® creatine in every mint — a proper peppermint first, so there's no chalky aftertaste and nothing to choke down. {mint_count_word_cap} a day is your full 3g dose.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#reserve">Reserve your spot →</a>
+        <a class="btn btn-outline" href="#how-it-works">See how it works</a>
+      </div>
+      <div class="stat-row">
+        <div class="stat"><span class="num">{dose}g</span><span class="label">Creapure® per mint</span></div>
+        <div class="stat"><span class="num">{mint_count}</span><span class="label">mints a day</span></div>
+        <div class="stat"><span class="num">3g</span><span class="label">full daily dose</span></div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-card">
+        <svg viewBox="0 0 400 460" width="100%" height="auto">
+          <defs>
+            <linearGradient id="pouchGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#25a375"/>
+              <stop offset="55%" stop-color="#1f8f63"/>
+              <stop offset="100%" stop-color="#166b4a"/>
+            </linearGradient>
+            <clipPath id="pouchClip">
+              <rect x="98" y="70" width="204" height="320" rx="26"/>
+            </clipPath>
+          </defs>
+
+          <ellipse cx="200" cy="430" rx="150" ry="16" fill="#0f2a22" opacity="0.08"/>
+
+          <g>
+            <ellipse cx="82" cy="406" rx="26" ry="15" fill="#ffffff" stroke="#e3ded0" stroke-width="1.5"/>
+            <ellipse cx="82" cy="402" rx="26" ry="15" fill="#ffffff"/>
+            <ellipse cx="74" cy="398" rx="7" ry="4" fill="#ffffff" opacity="0.9"/>
+            <ellipse cx="318" cy="409" rx="24" ry="14" fill="#ffffff" stroke="#e3ded0" stroke-width="1.5"/>
+            <ellipse cx="318" cy="405" rx="24" ry="14" fill="#ffffff"/>
+            <ellipse cx="128" cy="424" rx="22" ry="13" fill="#ffffff" stroke="#e3ded0" stroke-width="1.5" transform="rotate(-12 128 424)"/>
+            <ellipse cx="128" cy="420" rx="22" ry="13" fill="#ffffff" transform="rotate(-12 128 420)"/>
+          </g>
+
+          <rect x="98" y="70" width="204" height="320" rx="26" fill="url(#pouchGrad)"/>
+
+          <g clip-path="url(#pouchClip)">
+            <polygon points="120,70 165,70 95,390 50,390" fill="#ffffff" opacity="0.12"/>
+            <polygon points="255,70 285,70 235,390 205,390" fill="#ffffff" opacity="0.09"/>
+
+            <rect x="98" y="70" width="204" height="26" fill="#134f34"/>
+            <g fill="#ffffff" opacity="0.55">
+              <circle cx="106" cy="96" r="2.6"/><circle cx="122" cy="96" r="2.6"/><circle cx="138" cy="96" r="2.6"/>
+              <circle cx="154" cy="96" r="2.6"/><circle cx="170" cy="96" r="2.6"/><circle cx="186" cy="96" r="2.6"/>
+              <circle cx="202" cy="96" r="2.6"/><circle cx="218" cy="96" r="2.6"/><circle cx="234" cy="96" r="2.6"/>
+              <circle cx="250" cy="96" r="2.6"/><circle cx="266" cy="96" r="2.6"/><circle cx="282" cy="96" r="2.6"/>
+              <circle cx="298" cy="96" r="2.6"/>
+            </g>
+
+            <rect x="98" y="364" width="204" height="26" fill="#134f34"/>
+            <g fill="#ffffff" opacity="0.55">
+              <circle cx="106" cy="364" r="2.6"/><circle cx="122" cy="364" r="2.6"/><circle cx="138" cy="364" r="2.6"/>
+              <circle cx="154" cy="364" r="2.6"/><circle cx="170" cy="364" r="2.6"/><circle cx="186" cy="364" r="2.6"/>
+              <circle cx="202" cy="364" r="2.6"/><circle cx="218" cy="364" r="2.6"/><circle cx="234" cy="364" r="2.6"/>
+              <circle cx="250" cy="364" r="2.6"/><circle cx="266" cy="364" r="2.6"/><circle cx="282" cy="364" r="2.6"/>
+              <circle cx="298" cy="364" r="2.6"/>
+            </g>
+
+            <path d="M328,150 l4,10 10,4 -10,4 -4,10 -4,-10 -10,-4 10,-4 z" fill="#ffffff" opacity="0.5"/>
+            <path d="M78,180 l3,7 7,3 -7,3 -3,7 -3,-7 -7,-3 7,-3 z" fill="#ffffff" opacity="0.4"/>
+
+            <text x="200" y="232" text-anchor="middle" fill="#ffffff" font-family="'Baloo 2', sans-serif" font-size="44" font-weight="800" transform="rotate(-4 200 225)">MoMint</text>
+
+            <rect x="140" y="278" width="120" height="26" rx="13" fill="#ffffff"/>
+            <text x="200" y="295" text-anchor="middle" fill="#166b4a" font-family="'Baloo 2', sans-serif" font-size="12" font-weight="700" letter-spacing="0.5">PEPPERMINT</text>
+          </g>
+          <rect x="98" y="70" width="204" height="320" rx="26" fill="none" stroke="#0f2a22" stroke-opacity="0.08" stroke-width="1.5"/>
+
+          <path d="M270,72 L302,72 L302,104 Q282,88 270,72 Z" fill="#fbfaf5"/>
+          <ellipse cx="286" cy="86" rx="15" ry="9" fill="#ffffff" stroke="#e3ded0" stroke-width="1.2" transform="rotate(18 286 86)"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="benefits">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow"><span class="dot"></span>Why a mint</div>
+      <h2>Everything a tub does. Minus the aftertaste.</h2>
+      <p>Same Creapure® creatine, same 3g dose — in a format that's actually pleasant to take, {mint_count_word} times a day.</p>
+    </div>
+    <div class="grid-4">
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3c4 3 6 6 6 10a6 6 0 1 1-12 0c0-4 2-7 6-10z"/></svg>
+        </div>
+        <h3>Actually tastes great</h3>
+        <p>Creatine has a reputation for tasting rough. Ours doesn't — a proper peppermint first, made by specialists since 1842, with the creatine pressed in without the aftertaste.</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+        </div>
+        <h3>Dosed to the gram</h3>
+        <p>Exactly {dose}g of Creapure® pressed into every mint — no scooping, no guessing, no cloud of powder on the counter.</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12c4-6 12-6 16 0"/><path d="M4 12c4 6 12 6 16 0"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/></svg>
+        </div>
+        <h3>No water needed</h3>
+        <p>Chew and go. No shaker bottle, no mixing, none of the powdery mouthful tubs are known for.</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="3" width="12" height="18" rx="3"/><path d="M10 7h4"/></svg>
+        </div>
+        <h3>Pocket-sized</h3>
+        <p>The whole packet lives where your keys live. Your creatine goes where you go — no tub left behind in a cupboard.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section tint" id="how-it-works">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow"><span class="dot"></span>How it works</div>
+      <h2>{mint_count_word_cap} mints. Spread through your day.</h2>
+      <p>That's the whole system — no plan to follow, nothing to remember beyond reaching for the packet.</p>
+    </div>
+    <div class="steps">
+      {steps_html}
+    </div>
+    <p class="step-caption">Your body makes only a small amount of creatine on its own — reaching 3g from food alone would mean the best part of half a dozen steaks. {mint_count_word_cap} mints get you there instead.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head" style="margin-bottom:32px;">
+      <div class="eyebrow"><span class="dot"></span>The claim</div>
+    </div>
+    <div class="claim-card">
+      <p class="claim-text">Creatine increases physical performance in successive bursts of short-term, high-intensity exercise — at 3g a day. Exactly what {mint_count_word} mints deliver.</p>
+      <p class="claim-foot">Based on the EFSA-recognised research on creatine and exercise performance.{claim_extra_note}</p>
+    </div>
+  </div>
+</section>
+
+<section class="section tint" id="reserve">
+  <div class="wrap">
+    <div class="offer-grid">
+      <div class="offer-left">
+        <div class="eyebrow"><span class="dot"></span>First run</div>
+        <h2>Be first to try it.</h2>
+        <p>We're taking reservations before we go into production. Reserving is free, takes ten seconds, and commits you to nothing — we'll email you the moment the first run ships.</p>
+      </div>
+      <div class="offer-right">
+        <div class="offer-line"><span>Monthly supply</span><span class="price">{packets} packets · {total_mints} mints</span></div>
+        <div class="offer-line"><span>Per mint</span><span class="price">{dose}g Creapure®{sugar_free_tag}</span></div>
+        <div class="offer-line"><span>Subscribe</span><span class="price">CHF {sub_price} / month + P&amp;P</span></div>
+        <div class="offer-line"><span>One-time</span><span class="price">CHF {onetime_price} + P&amp;P</span></div>
+        <form class="reserve" action="#" method="POST">
+          <input type="email" name="email" placeholder="you@email.com" required aria-label="Email address">
+          <button type="submit">Reserve my spot →</button>
+        </form>
+        <p class="form-msg"></p>
+        <p class="reserve-note">Indicative pricing for our first run. We'll only email you about MoMint — unsubscribe anytime.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="faq">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow"><span class="dot"></span>FAQ</div>
+      <h2>Good to know</h2>
+    </div>
+    <div class="faq">
+      <div class="faq-item open">
+        <button class="faq-q" type="button">What's actually in it? <span class="plus">+</span></button>
+        <div class="faq-a"><p>{dose}g of Creapure® creatine monohydrate — the German-made standard used in the research — pressed into a proper peppermint mint. That's it.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" type="button">Why {mint_count_word} mints a day? <span class="plus">+</span></button>
+        <div class="faq-a"><p>The research behind creatine's effect on exercise performance is based on 3g a day. Each mint carries {dose}g, so {mint_count_word} gets you the full dose.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" type="button">Does it taste like a supplement? <span class="plus">+</span></button>
+        <div class="faq-a"><p>No — it's a proper peppermint first, made by one of Europe's oldest mint specialists since 1842. The creatine is pressed directly in; you'd never know it's there.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" type="button">When can I get it? <span class="plus">+</span></button>
+        <div class="faq-a"><p>We're taking reservations ahead of our first production run. Reserve your spot below and we'll email you the moment it ships — no payment now.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="close">
+  <div class="wordmark">MoMint</div>
+  <div class="tagline">Daily Creatine Mints</div>
+  <a class="btn btn-primary" href="#reserve">Reserve your spot →</a>
+  <p class="legal">Creapure® is a registered trademark of AlzChem Trostberg GmbH.</p>
+</footer>
+
+<script src="{asset_prefix}assets/tracking.js"></script>
+</body>
+</html>
+"""
+
+STEP_TEMPLATE = """<div class="step">
+        <div class="step-num">{n}</div>
+        <h3>{title}</h3>
+        <p>{body}</p>
+      </div>"""
+
+VARIANTS = {
+    "sugar": {
+        "variant_label": "Classic (with sugar)",
+        "mint_count": "3",
+        "mint_count_word": "three",
+        "mint_count_word_cap": "Three",
+        "dose": "1",
+        "claim_extra_note": "",
+        "packets": "7",
+        "total_mints": "98",
+        "sugar_free_tag": "",
+        "sub_price": "29",
+        "onetime_price": "37",
+        "steps": [
+            ("After breakfast", "One mint with your morning coffee or on the way out the door."),
+            ("After lunch", "One mint — freshens your breath, tops up your dose."),
+            ("After dinner", "One mint and you've hit your full 3g for the day."),
+        ],
+        "folder": "sugar",
+    },
+    "sugar_free": {
+        "variant_label": "Sugar-free",
+        "mint_count": "2",
+        "mint_count_word": "two",
+        "mint_count_word_cap": "Two",
+        "dose": "1.5",
+        "claim_extra_note": ' "Sugar-free" is a regulated nutrition claim (must meet &lt;0.5g sugars per 100g/100ml) — confirm against spec sheet before launch.',
+        "packets": "5",
+        "total_mints": "70",
+        "sugar_free_tag": " · sugar-free",
+        "sub_price": "35",
+        "onetime_price": "44",
+        "steps": [
+            ("After your morning coffee", "One mint to start the day."),
+            ("After dinner", "One mint and you've hit your full 3g for the day."),
+        ],
+        "folder": "sugar-free",
+    },
+}
+
+def render(variant_key, asset_prefix):
+    v = VARIANTS[variant_key]
+    ctx = dict(v)
+    ctx["variant_id"] = variant_key
+    ctx["asset_prefix"] = asset_prefix
+    ctx["sugar_current"] = "current" if variant_key == "sugar" else ""
+    ctx["sugar_free_current"] = "current" if variant_key == "sugar_free" else ""
+    steps_html = "\n      ".join(
+        STEP_TEMPLATE.format(n=i + 1, title=t, body=b) for i, (t, b) in enumerate(v["steps"])
+    )
+    ctx["steps_html"] = steps_html
+    return TEMPLATE.format(**ctx)
+
+# Root (= sugar variant, so momintcreatine.com/ isn't a dead link)
+with open("index.html", "w") as f:
+    f.write(render("sugar", ""))
+
+# /sugar/ and /sugar-free/ explicit paths (for ad-link targeting)
+for key in VARIANTS:
+    folder = VARIANTS[key]["folder"]
+    os.makedirs(folder, exist_ok=True)
+    with open(os.path.join(folder, "index.html"), "w") as f:
+        f.write(render(key, "../"))
+
+print("Generated index.html, sugar/index.html, sugar-free/index.html")
